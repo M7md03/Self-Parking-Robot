@@ -1,3 +1,4 @@
+#pragma once
 #include "motor.h"
 
 #include "freertos/FreeRTOS.h"
@@ -38,7 +39,7 @@ void rotateLeft(int speed, int angle) {
     gpioWrite(RIGHT_SIDE_FORWARD, GPIO_HIGH);
     gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_LOW);
     gpioWrite(MOTOR_PWM, GPIO_HIGH);
-    vTaskDelay(2 * angle / portTICK_PERIOD_MS);  // Delay for 1 second
+    vTaskDelay(2 * angle / portTICK_PERIOD_MS);
 }
 
 void rotateRight(int speed, int angle) {
@@ -47,7 +48,7 @@ void rotateRight(int speed, int angle) {
     gpioWrite(RIGHT_SIDE_FORWARD, GPIO_LOW);
     gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_HIGH);
     gpioWrite(MOTOR_PWM, GPIO_HIGH);
-    vTaskDelay(2 * angle / portTICK_PERIOD_MS);  // Delay for 1 second
+    vTaskDelay(2 * angle / portTICK_PERIOD_MS);
 }
 
 void stopMotor() {
