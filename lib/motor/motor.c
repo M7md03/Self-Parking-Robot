@@ -1,4 +1,3 @@
-#pragma once
 #include "motor.h"
 
 #include "freertos/FreeRTOS.h"
