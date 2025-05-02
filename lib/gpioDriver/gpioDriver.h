@@ -72,10 +72,35 @@ static const uint32_t GPIO_PIN_MUX_REG[] = {
     IO_MUX_REG + 0x10,  // GPIO 39
 };
 
+#define RTC_CNTL_BASE 0x3FF48000
+#define RTC_CNTL_CLK_CONF_REG (RTC_CNTL_BASE + 0x70)     // RTC clock configuration register
+#define RTC_CNTL_OPTIONS0_REG (RTC_CNTL_BASE + 0x68)     // RTC options register 0
+#define RTC_CNTL_WDTFEED_REG (RTC_CNTL_BASE + 0xA0)      // RTC watchdog feed register
+#define RTC_CNTL_WDTWPROTECT_REG (RTC_CNTL_BASE + 0xA4)  // RTC watchdog write protection register
+#define RTC_CNTL_WDTCONFIG0_REG (RTC_CNTL_BASE + 0x8C)   // RTC watchdog configuration register
+
+#define TIMG_BASE 0x3FF5F000
+
+#define SYSCON_BASE 0x3FF66000                          // Address of the system control registers
+#define SYSCON_PLL_TICK_CONF_REG (SYSCON_BASE + 0x08)   // System control PLL tick configuration register
+#define SYSCON_APLL_TICK_CONF_REG (SYSCON_BASE + 0x3C)  // System control PLL configuration register
+
+#define REG32(addr) (*((volatile uint32_t *)(addr)))  // Macro to access 32-bit registers
+
+void ESP32Init();
+
 void gpioSetMode(uint32_t gpio_num, uint32_t mode);
 
 void gpioWrite(uint32_t gpio_num, uint32_t value);
 
 uint32_t gpioRead(uint32_t gpio_num);
+
+uint64_t readTimer(uint32_t timer_num);
+
+void setDelay(uint32_t value);
+
+void setDelayUs(uint32_t value);
+
+void resetWatchdog();
 
 #endif
