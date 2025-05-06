@@ -10,7 +10,7 @@
 void ESP32Init() {
     DPORT_SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_TIMERGROUP_CLK_EN);
     DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_TIMERGROUP_RST);
-    esp_task_wdt_deinit();  // Disable the watchdog timer
+    disableWatchdog();  // Disable the watchdog timer
 
     uint32_t timer0_config = REG_READ(TIMG_T0CONFIG_REG(0));  // Read timer 0 configuration register
     timer0_config &= ~(TIMG_T0_DIVIDER_M);
@@ -123,4 +123,10 @@ void setDelayUs(uint32_t value) {
     }
     end = start + ((uint64_t)value * 40) - 90;
     while (readTimer(0) < end);
+}
+
+void disableWatchdog() {
+    REG_WRITE(TIMG_WDTWPROTECT_REG(0), 0x50D83AA1);  // Write protection for WDT registers
+    REG_WRITE(TIMG_WDTFEED_REG(0), 0x01);            // Feed the watchdog timer
+    REG_WRITE(TIMG_WDTCONFIG0_REG(0), 0x00000000);   // Disable the watchdog timer
 }

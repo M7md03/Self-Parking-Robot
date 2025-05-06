@@ -101,6 +101,6 @@ void setDelay(uint32_t value);
 
 void setDelayUs(uint32_t value);
 
-void resetWatchdog();
+void disableWatchdog();
 
 #endif
