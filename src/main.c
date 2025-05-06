@@ -5,14 +5,11 @@
 
 void app_main() {
     ESP32Init();  // Initialize the ESP32
-    gpioSetMode(32, GPIO_INPUT);
-    gpioSetMode(4, GPIO_OUTPUT);
-    gpioWrite(4, GPIO_LOW);
+    gpioSetMode(5, GPIO_OUTPUT);
     while (1) {
-        if (gpioRead(32) == GPIO_HIGH) {
-            printf("GPIO 32 is HIGH\n");
-        } else {
-            printf("GPIO 32 is LOW\n");
-        }
+        gpioWrite(5, GPIO_HIGH);  // Set GPIO 5 HIGH
+        setDelay(1000);           // Delay for 1 second
+        gpioWrite(5, GPIO_LOW);   // Set GPIO 5 LOW
+        setDelay(1000);           // Delay for 1 second
     }
 }
