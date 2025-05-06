@@ -6,4 +6,4 @@
 #define ECHO_US_LEFT_PIN 19
 #define TRIG_US_RIGHT_PIN 23
 #define ECHO_US_RIGHT_PIN 22
-#define SOUND_SPEED 0.034
+#define SOUND_SPEED 0.0343

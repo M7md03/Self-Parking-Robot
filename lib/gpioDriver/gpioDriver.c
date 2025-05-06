@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "esp_rom_sys.h"
 #include "esp_task_wdt.h"
 #include "soc/dport_reg.h"
 #include "soc/soc.h"
@@ -59,9 +60,9 @@ void gpioWrite(uint32_t gpioNum, uint32_t value) {
     }
     if (gpioNum < 32) {
         if (value) {
-            REG32(GPIO_OUTPUT_REG) |= (1 << gpioNum);  // Set GPIO high
+            REG32(GPIO_OUT_W1TS_REG) = (1 << gpioNum);  // Set GPIO high
         } else {
-            REG32(GPIO_OUTPUT_REG) &= ~(1 << gpioNum);  // Set GPIO low
+            REG32(GPIO_OUT_W1TC_REG) = (1 << gpioNum);  // Set GPIO low
         }
     } else {
         if (value) {
@@ -129,4 +130,10 @@ void disableWatchdog() {
     REG_WRITE(TIMG_WDTWPROTECT_REG(0), 0x50D83AA1);  // Write protection for WDT registers
     REG_WRITE(TIMG_WDTFEED_REG(0), 0x01);            // Feed the watchdog timer
     REG_WRITE(TIMG_WDTCONFIG0_REG(0), 0x00000000);   // Disable the watchdog timer
+}
+
+void gpioDriverPulse(uint32_t pin, uint32_t duration_us) {
+    gpioWrite(pin, GPIO_HIGH);
+    setDelayUs(duration_us);
+    gpioWrite(pin, GPIO_LOW);
 }

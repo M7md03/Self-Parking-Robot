@@ -19,12 +19,15 @@
 #define GPIO_OUTPUT_REG (GPIO_BASE + 0x4)    // GPIO 0-31 output register
 #define GPIO_OUTPUT1_REG (GPIO_BASE + 0x10)  // GPIO 32-39 output register
 
+#define GPIO_OUT_W1TS_REG (GPIO_BASE + 0x8)  // GPIO 0-31 output set register
+#define GPIO_OUT_W1TC_REG (GPIO_BASE + 0xC)  // GPIO 0-31 output clear register
+
 #define GPIO_OUTPUT_ENABLE_REG (GPIO_BASE + 0x20)   // GPIO 0-31 output enable register
 #define GPIO_OUTPUT_ENABLE1_REG (GPIO_BASE + 0x2C)  // GPIO 32-39 output enable register
 
 #define GPIO_FUNCn_OUT_SEL_CFG_REG(n) (GPIO_BASE + 0x530 + 0x4 * n)  // Function select register for GPIO n
 
-#define GPIO_INPUT_REG (GPIO_BASE + 0x32)   // GPIO 0-31 input register
+#define GPIO_INPUT_REG (GPIO_BASE + 0x3C)   // GPIO 0-31 input register
 #define GPIO_INPUT1_REG (GPIO_BASE + 0x40)  // GPIO 32-39 input register
 
 #define IO_MUX_REG (GPIO_BASE + 0x5000)  // IO MUX register base address
@@ -102,5 +105,7 @@ void setDelay(uint32_t value);
 void setDelayUs(uint32_t value);
 
 void disableWatchdog();
+
+void gpioDriverPulse(uint32_t pin, uint32_t duration_us);
 
 #endif
