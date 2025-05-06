@@ -4,13 +4,15 @@
 #include "motor.h"
 
 void app_main() {
-    ESP32Init();                  // Initialize ESP32 hardware
-    gpioSetMode(4, GPIO_OUTPUT);  // Set GPIO 2 as output for motor control
-
+    ESP32Init();  // Initialize the ESP32
+    gpioSetMode(32, GPIO_INPUT);
+    gpioSetMode(4, GPIO_OUTPUT);
+    gpioWrite(4, GPIO_LOW);
     while (1) {
-        gpioWrite(4, GPIO_HIGH);
-        setDelayUs(1000000);  // Delay for 1 second
-        gpioWrite(4, GPIO_LOW);
-        setDelay(1000);  // Delay for 1 second
+        if (gpioRead(32) == GPIO_HIGH) {
+            printf("GPIO 32 is HIGH\n");
+        } else {
+            printf("GPIO 32 is LOW\n");
+        }
     }
 }
