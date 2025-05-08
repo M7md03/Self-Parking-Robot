@@ -88,6 +88,14 @@ static const uint32_t GPIO_PIN_MUX_REG[] = {
 #define SYSCON_PLL_TICK_CONF_REG (SYSCON_BASE + 0x08)   // System control PLL tick configuration register
 #define SYSCON_APLL_TICK_CONF_REG (SYSCON_BASE + 0x3C)  // System control PLL configuration register
 
+#define LEDC_HSCH0_CONF0_REG 0x3FF59000
+#define LEDC_HSCH0_HPOINT_REG 0x3FF59004
+#define LEDC_HSCH0_DUTY_REG 0x3FF59008
+#define LEDC_HSCH0_CONF1_REG 0x3FF5900C
+
+#define LEDC_HSTIMER0_CONF_REG 0x3FF59140
+#define LEDC_CONF_REG 0x3FF59190
+
 #define REG32(addr) (*((volatile uint32_t *)(addr)))  // Macro to access 32-bit registers
 
 void ESP32Init();
@@ -107,5 +115,9 @@ void setDelayUs(uint32_t value);
 void disableWatchdog();
 
 void gpioDriverPulse(uint32_t pin, uint32_t duration_us);
+
+void ledcInit(uint32_t dutyPercentage);
+
+void setDuty(uint32_t duty);
 
 #endif

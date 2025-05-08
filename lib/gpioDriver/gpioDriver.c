@@ -5,6 +5,8 @@
 #include "esp_rom_sys.h"
 #include "esp_task_wdt.h"
 #include "soc/dport_reg.h"
+#include "soc/gpio_periph.h"
+#include "soc/gpio_reg.h"
 #include "soc/soc.h"
 #include "soc/timer_group_reg.h"
 
@@ -132,8 +134,33 @@ void disableWatchdog() {
     REG_WRITE(TIMG_WDTCONFIG0_REG(0), 0x00000000);   // Disable the watchdog timer
 }
 
-void gpioDriverPulse(uint32_t pin, uint32_t duration_us) {
-    gpioWrite(pin, GPIO_HIGH);
-    setDelayUs(duration_us);
-    gpioWrite(pin, GPIO_LOW);
+void ledcInit(uint32_t dutyPercentage) {
+    REG32(DPORT_PERIP_CLK_EN_REG) |= (1 << 11);  // Enable LEDC clock
+    uint32_t divider = 80000000 / (5000 * 256);
+
+    REG32(LEDC_HSTIMER0_CONF_REG) &= ~(0xf);
+    REG32(LEDC_HSTIMER0_CONF_REG) |= (8 | (1 << 13));
+
+    REG32(LEDC_HSCH0_CONF0_REG + 0x14) &= ~(0b00);
+    REG32(LEDC_HSCH0_CONF0_REG + 0x14) |= (1 << 2);
+
+    REG32(LEDC_HSCH0_HPOINT_REG + 0x14) = 0x1;
+    REG32(LEDC_HSCH0_DUTY_REG + 0x14) &= ~(0xFFFFFF);
+    REG32(LEDC_HSCH0_DUTY_REG + 0x14) |= (20 << 4);
+
+    REG32(GPIO_FUNC0_OUT_SEL_CFG_REG + 0x4 * 27) = 72;
+
+    REG32(GPIO_ENABLE_W1TS_REG) |= (1 << 27);
+
+    REG32(GPIO_PIN_MUX_REG[27]) &= ~(0b111 << 12);
+    REG32(GPIO_PIN_MUX_REG[27]) |= (2 << 12);
+
+    REG32(LEDC_HSCH0_CONF1_REG) |= (0x1 << 31);
+    REG32(LEDC_HSTIMER0_CONF_REG) &= ~(1 << 24);
+}
+
+void setDuty(uint32_t duty) {
+    REG32(0x3FF5901C) &= ~(0xFFFFFF);
+    REG32(0x3FF5901C) |= (duty << 4);  // Set duty cycle
+    REG32(0x3FF59020) |= (0x1 << 31);  // Start PWM
 }
