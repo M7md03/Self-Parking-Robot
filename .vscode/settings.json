@@ -10,6 +10,7 @@
         "timer_group_struct.h": "c",
         "timer_group_reg.h": "c",
         "esp_task_wdt.h": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "motor.h": "c"
     }
 }
