@@ -17,8 +17,8 @@ void moveBackward();
 void rotateLeft(int angle);
 void rotateRight(int angle);
 
-void setPWM(int speed);
-
 void stopMotor();
+
+void setPWM(int speed);
 
 #endif
