@@ -19,6 +19,18 @@ void app_main() {
     ledcInit(0);   // Initialize LEDC for PWM control
     setDuty(255);
     bluetoothRun();  // Initialize Bluetooth
+    volatile float distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
+    volatile float distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
+    volatile float distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
+    volatile float distanceB = getDistance(TRIG_US_BACK_PIN, ECHO_US_BACK_PIN);
+    while (1) {
+        distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
+        distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
+        distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
+        distanceB = getDistance(TRIG_US_BACK_PIN, ECHO_US_BACK_PIN);
+        // printf("Front: %.2f cm, Right: %.2f cm, Left: %.2f cm, Back: %.2f cm\n", distanceF, distanceR, distanceL, distanceB);
+        setDelay(100);  // Delay for 1 second
+    }
 }
 
 void startParking() {
@@ -36,7 +48,8 @@ void startParking() {
     while (distanceL < 15 && distanceR < 15) {
         distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
         distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
-        setDelayUs(1000);
+        printf("Left: %.2f cm, Right: %.2f cm\n", distanceL, distanceR);
+        setDelayUs(800);
     }
     stopMotor();
     moveForward();
@@ -44,7 +57,7 @@ void startParking() {
     stopMotor();
     distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
     distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
-    if (distanceR > 30) {
+    if (distanceR > 25) {
         rotateRight(90);
         stopMotor();
     } else {
@@ -144,28 +157,20 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
             received_data[copy_len] = '\0';  // Ensure null termination
 
             if (strncmp(received_data, "G", 1) == 0) {
-                if (currentSpeed < 3) {
-                    currentSpeed++;
-                }
-                setPWM(currentSpeed);
+                setPWM(currentSpeed + 1);
             } else if (strncmp(received_data, "R", 1) == 0) {
-                if (currentSpeed > 0) {
-                    currentSpeed--;
-                }
-                if (currentSpeed > 0) {
-                    setPWM(currentSpeed);
-                } else {
-                    stopMotor();
-                }
+                setPWM(currentSpeed - 1);
             } else if (strncmp(received_data, "B", 1) == 0) {
                 startParking();
             } else if (strncmp(received_data, "W", 1) == 0) {
                 moveForward();
             } else if (strncmp(received_data, "A", 1) == 0) {
+                setPWM(2);
                 rotateLeft(9999);
             } else if (strncmp(received_data, "S", 1) == 0) {
                 moveBackward();
             } else if (strncmp(received_data, "D", 1) == 0) {
+                setPWM(2);
                 rotateRight(9999);
             } else if (strncmp(received_data, "w", 1) == 0) {
                 stopMotor();
