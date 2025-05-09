@@ -161,26 +161,44 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
             memcpy(received_data, param->data_ind.data, copy_len);
             received_data[copy_len] = '\0';  // Ensure null termination
 
+            char response_buffer[32];
+            uint8_t response_len = 0;
+
             if (strncmp(received_data, "G", 1) == 0) {
                 setPWM(3);
+                strcpy(response_buffer, "Speed-3\n");
+                response_len = strlen(response_buffer);
             } else if (strncmp(received_data, "Y", 1) == 0) {
                 setPWM(2);
+                strcpy(response_buffer, "Speed-2\n");
+                response_len = strlen(response_buffer);
             } else if (strncmp(received_data, "R", 1) == 0) {
                 setPWM(1);
+                strcpy(response_buffer, "Speed-1\n");
+                response_len = strlen(response_buffer);
             } else if (strncmp(received_data, "B", 1) == 0) {
                 startParking();
+                strcpy(response_buffer, "Start-Parking\n");
+                response_len = strlen(response_buffer);
             } else if (strncmp(received_data, "W", 1) == 0) {
                 moveForward();
+                strcpy(response_buffer, "Moving-Forward\n");
+                response_len = strlen(response_buffer);
             } else if (strncmp(received_data, "A", 1) == 0) {
-                setPWM(2);
                 rotateLeft(9999);
+                strcpy(response_buffer, "Turning-left\n");
+                response_len = strlen(response_buffer);
             } else if (strncmp(received_data, "S", 1) == 0) {
                 moveBackward();
+                strcpy(response_buffer, "Moving-Backward\n");
+                response_len = strlen(response_buffer);
             } else if (strncmp(received_data, "D", 1) == 0) {
-                setPWM(2);
                 rotateRight(9999);
+                strcpy(response_buffer, ("Turning-Right\n"));
+                response_len = strlen(response_buffer);
             } else if (strncmp(received_data, "w", 1) == 0) {
                 stopMotor();
+
             } else if (strncmp(received_data, "a", 1) == 0) {
                 stopMotor();
             } else if (strncmp(received_data, "s", 1) == 0) {
@@ -188,10 +206,12 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
             } else if (strncmp(received_data, "d", 1) == 0) {
                 stopMotor();
             }
-            printf("Received data: %s\n", received_data);
-            esp_err_t write_err = esp_spp_write(param->data_ind.handle, param->data_ind.len, param->data_ind.data);
-            if (write_err != ESP_OK) {
-                printf("SPP write error: %d\n", write_err);
+
+            if (response_len > 0) {
+                esp_err_t write_err = esp_spp_write(param->data_ind.handle, response_len, (uint8_t *)response_buffer);
+                if (write_err != ESP_OK) {
+                    printf("SPP write error: %d\n", write_err);
+                }
             }
             break;
         case ESP_SPP_CONG_EVT:
