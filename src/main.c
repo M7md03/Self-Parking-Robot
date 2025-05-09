@@ -5,7 +5,7 @@
 #include "gpioDriver.h"
 #include "motor.h"
 
-int currentSpeed = 0;
+int currentSpeed = 2;
 
 void startParking();
 void bluetoothRun();
@@ -19,18 +19,6 @@ void app_main() {
     ledcInit(0);   // Initialize LEDC for PWM control
     setDuty(255);
     bluetoothRun();  // Initialize Bluetooth
-    volatile float distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
-    volatile float distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
-    volatile float distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
-    volatile float distanceB = getDistance(TRIG_US_BACK_PIN, ECHO_US_BACK_PIN);
-    while (1) {
-        distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
-        distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
-        distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
-        distanceB = getDistance(TRIG_US_BACK_PIN, ECHO_US_BACK_PIN);
-        // printf("Front: %.2f cm, Right: %.2f cm, Left: %.2f cm, Back: %.2f cm\n", distanceF, distanceR, distanceL, distanceB);
-        setDelay(100);  // Delay for 1 second
-    }
 }
 
 void startParking() {
@@ -45,23 +33,39 @@ void startParking() {
     volatile float distanceF = 0.0;
     distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
     distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
-    while (distanceL < 15 && distanceR < 15) {
+    distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
+    while (distanceL < 15 && distanceR < 15 && distanceF > 12) {
         distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
         distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
+        distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
         printf("Left: %.2f cm, Right: %.2f cm\n", distanceL, distanceR);
-        setDelayUs(800);
+        setDelayUs(300);
     }
     stopMotor();
     moveForward();
-    setDelay(160);
+    setDelay(100);
     stopMotor();
-    distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
     distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
+    distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
+    distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
+    ;
+    printf("Left Rot: %.2f cm, Right Rot: %.2f cm\n", distanceL, distanceR);
     if (distanceR > 25) {
         rotateRight(90);
+        setPWM(1);
+        stopMotor();
+    } else if (distanceL > 25) {
+        rotateLeft(90);
+        setPWM(1);
         stopMotor();
     } else {
-        rotateLeft(90);
+        gpioSetMode(21, GPIO_HIGH);
+        moveBackward();
+        setDelay(300);
+        stopMotor();
+        setDelay(100);
+        rotateRight(170);
+        setPWM(2);
         stopMotor();
     }
     setDelayUs(10000);
@@ -69,6 +73,7 @@ void startParking() {
     distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
     while (distanceF > 10) {
         distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
+        printf("Front: %.2f cm\n", distanceF);
         setDelayUs(1000);
     }
     stopMotor();
@@ -157,9 +162,11 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
             received_data[copy_len] = '\0';  // Ensure null termination
 
             if (strncmp(received_data, "G", 1) == 0) {
-                setPWM(currentSpeed + 1);
+                setPWM(3);
+            } else if (strncmp(received_data, "Y", 1) == 0) {
+                setPWM(2);
             } else if (strncmp(received_data, "R", 1) == 0) {
-                setPWM(currentSpeed - 1);
+                setPWM(1);
             } else if (strncmp(received_data, "B", 1) == 0) {
                 startParking();
             } else if (strncmp(received_data, "W", 1) == 0) {

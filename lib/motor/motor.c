@@ -32,12 +32,12 @@ void moveBackward() {
 
 void rotateLeft(int angle) {
     if (angle < 1000) {
-        setPWM(1);  // Set speed for rotation
+        setPWM(2);  // Set speed for rotation
         gpioWrite(LEFT_SIDE_FORWARD, GPIO_LOW);
         gpioWrite(LEFT_SIDE_BACKWARD, GPIO_HIGH);
         gpioWrite(RIGHT_SIDE_FORWARD, GPIO_HIGH);
         gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_LOW);
-        setDelay(angle * 10);  // Adjust the delay for rotation
+        setDelay(angle * 5);  // Adjust the delay for rotation
     } else {
         gpioWrite(LEFT_SIDE_FORWARD, GPIO_LOW);
         gpioWrite(LEFT_SIDE_BACKWARD, GPIO_HIGH);
@@ -48,12 +48,12 @@ void rotateLeft(int angle) {
 
 void rotateRight(int angle) {
     if (angle < 1000) {
-        setPWM(1);  // Set speed for rotation
+        setPWM(2);  // Set speed for rotation
         gpioWrite(LEFT_SIDE_FORWARD, GPIO_HIGH);
         gpioWrite(LEFT_SIDE_BACKWARD, GPIO_LOW);
         gpioWrite(RIGHT_SIDE_FORWARD, GPIO_LOW);
         gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_HIGH);
-        setDelay(angle * 10);  // Adjust the delay for rotation
+        setDelay(angle * 5);  // Adjust the delay for rotation
     } else {
         gpioWrite(LEFT_SIDE_FORWARD, GPIO_HIGH);
         gpioWrite(LEFT_SIDE_BACKWARD, GPIO_LOW);
