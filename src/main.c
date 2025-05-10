@@ -22,34 +22,47 @@ void app_main() {
 }
 
 void startParking() {
-    // Start parking logic here
-    // For example, you can use HCSR04 to detect obstacles and control the motor accordingly
-    // This is just a placeholder for your parking logic
     printf("Parking started...\n");
     setPWM(1);
     moveForward();
+
+    // Initialize distance variables
     volatile float distanceL = 0.0;
     volatile float distanceR = 0.0;
     volatile float distanceF = 0.0;
-    distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
-    distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
-    distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
+
+    // Initial reliable distance measurements with up to 3 retries
+    distanceL = getReliableDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN, 3);
+    setDelayUs(50);
+    distanceR = getReliableDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN, 3);
+    setDelayUs(50);
+    distanceF = getReliableDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN, 3);
+    setDelayUs(50);
+
+    // Forward movement until conditions are met
+    // No need to check for negative values as getReliableDistance handles that
     while (distanceL < 15 && distanceR < 15 && distanceF > 12) {
-        distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
-        distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
-        distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
-        printf("Left: %.2f cm, Right: %.2f cm\n", distanceL, distanceR);
-        setDelayUs(300);
+        distanceL = getReliableDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN, 3);
+        setDelayUs(50);
+        distanceR = getReliableDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN, 3);
+        setDelayUs(50);
+        distanceF = getReliableDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN, 3);
+        setDelayUs(200);
     }
+
     stopMotor();
     moveForward();
     setDelay(100);
     stopMotor();
-    distanceR = getDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN);
-    distanceL = getDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN);
-    distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
-    ;
-    printf("Left Rot: %.2f cm, Right Rot: %.2f cm\n", distanceL, distanceR);
+
+    // Get updated reliable measurements
+    distanceR = getReliableDistance(TRIG_US_RIGHT_PIN, ECHO_US_RIGHT_PIN, 3);
+    setDelayUs(50);
+    distanceL = getReliableDistance(TRIG_US_LEFT_PIN, ECHO_US_LEFT_PIN, 3);
+    setDelayUs(50);
+    distanceF = getReliableDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN, 3);
+    setDelayUs(50);
+
     if (distanceR > 25) {
         rotateRight(90);
         setPWM(1);
@@ -68,14 +81,18 @@ void startParking() {
         setPWM(2);
         stopMotor();
     }
+
     setDelayUs(10000);
     moveForward();
-    distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
+
+    // Keep moving forward until obstacle detected
+    distanceF = getReliableDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN, 3);
+    setDelayUs(50);
     while (distanceF > 10) {
-        distanceF = getDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN);
-        printf("Front: %.2f cm\n", distanceF);
-        setDelayUs(1000);
+        distanceF = getReliableDistance(TRIG_US_FRONT_PIN, ECHO_US_FRONT_PIN, 3);
+        setDelayUs(50);
     }
+
     stopMotor();
     printf("Parking completed.\n");
 }
@@ -115,7 +132,13 @@ void bluetoothRun() {
         return;
     }
 
-    if ((ret = esp_spp_init(esp_spp_mode)) != ESP_OK) {
+    esp_spp_cfg_t esp_spp_cfg = {
+        .mode = ESP_SPP_MODE_CB,
+        .enable_l2cap_ertm = true,
+        .tx_buffer_size = 0,  // Using default size
+    };
+
+    if ((ret = esp_spp_enhanced_init(&esp_spp_cfg)) != ESP_OK) {
         return;
     }
 
@@ -147,13 +170,13 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
         case ESP_SPP_CLOSE_EVT:
             break;
         case ESP_SPP_START_EVT:
-            esp_bt_dev_set_device_name(EXAMPLE_DEVICE_NAME);
+            esp_bt_gap_set_device_name(EXAMPLE_DEVICE_NAME);
             esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
             break;
         case ESP_SPP_CL_INIT_EVT:
             break;
         case ESP_SPP_DATA_IND_EVT:
-            esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);
+            ESP_LOG_BUFFER_HEX("", param->data_ind.data, param->data_ind.len);
 
             char received_data[32];  // Larger buffer
             memset(received_data, 0, sizeof(received_data));
@@ -235,7 +258,7 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param) {
     switch (event) {
         case ESP_BT_GAP_AUTH_CMPL_EVT: {
             if (param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS) {
-                esp_log_buffer_hex(tag, param->auth_cmpl.bda, ESP_BD_ADDR_LEN);
+                ESP_LOG_BUFFER_HEX(tag, param->auth_cmpl.bda, ESP_BD_ADDR_LEN);
             }
             break;
         }

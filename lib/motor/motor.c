@@ -75,11 +75,10 @@ void setPWM(int speed) {
     int x = 0;
     if (speed == 3) {
         x = 255;
-        return;
     } else if (speed == 2) {
-        x = 255 / 1.4;
+        x = 255 / 1.2;
     } else if (speed == 1) {
-        x = 255 / 1.9;
+        x = 255 / 1.7;
     }
     setDuty(x);  // Set the duty cycle for PWM
 }

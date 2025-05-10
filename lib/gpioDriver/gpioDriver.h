@@ -19,8 +19,8 @@
 #define GPIO_OUTPUT_REG (GPIO_BASE + 0x4)    // GPIO 0-31 output register
 #define GPIO_OUTPUT1_REG (GPIO_BASE + 0x10)  // GPIO 32-39 output register
 
-#define GPIO_OUT_W1TS_REG (GPIO_BASE + 0x8)  // GPIO 0-31 output set register
-#define GPIO_OUT_W1TC_REG (GPIO_BASE + 0xC)  // GPIO 0-31 output clear register
+// #define GPIO_OUT_W1TS_REG (GPIO_BASE + 0x8)  // GPIO 0-31 output set register
+// #define GPIO_OUT_W1TC_REG (GPIO_BASE + 0xC)  // GPIO 0-31 output clear register
 
 #define GPIO_OUTPUT_ENABLE_REG (GPIO_BASE + 0x20)   // GPIO 0-31 output enable register
 #define GPIO_OUTPUT_ENABLE1_REG (GPIO_BASE + 0x2C)  // GPIO 32-39 output enable register

@@ -136,7 +136,6 @@ void disableWatchdog() {
 
 void ledcInit(uint32_t dutyPercentage) {
     REG32(DPORT_PERIP_CLK_EN_REG) |= (1 << 11);  // Enable LEDC clock
-    uint32_t divider = 80000000 / (5000 * 256);
 
     REG32(LEDC_HSTIMER0_CONF_REG) &= ~(0xf);
     REG32(LEDC_HSTIMER0_CONF_REG) |= (8 | (1 << 13));

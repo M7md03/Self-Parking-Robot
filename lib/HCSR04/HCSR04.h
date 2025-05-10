@@ -17,4 +17,6 @@ void HCSR04Init();
 
 float getDistance(uint32_t trigPin, uint32_t echoPin);
 
+float getReliableDistance(uint32_t trigPin, uint32_t echoPin, int maxRetries);
+
 #endif
