@@ -16,43 +16,69 @@ void initMotor() {
     gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_LOW);
 }
 
-void moveForward(int speed) {
+void moveForward() {
     gpioWrite(LEFT_SIDE_FORWARD, GPIO_HIGH);
     gpioWrite(LEFT_SIDE_BACKWARD, GPIO_LOW);
     gpioWrite(RIGHT_SIDE_FORWARD, GPIO_HIGH);
     gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_LOW);
-    gpioWrite(MOTOR_PWM, GPIO_HIGH);
 }
 
-void moveBackward(int speed) {
+void moveBackward() {
     gpioWrite(LEFT_SIDE_FORWARD, GPIO_LOW);
     gpioWrite(LEFT_SIDE_BACKWARD, GPIO_HIGH);
     gpioWrite(RIGHT_SIDE_FORWARD, GPIO_LOW);
     gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_HIGH);
-    gpioWrite(MOTOR_PWM, GPIO_HIGH);
 }
 
-void rotateLeft(int speed, int angle) {
-    gpioWrite(LEFT_SIDE_FORWARD, GPIO_LOW);
-    gpioWrite(LEFT_SIDE_BACKWARD, GPIO_HIGH);
-    gpioWrite(RIGHT_SIDE_FORWARD, GPIO_HIGH);
-    gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_LOW);
-    gpioWrite(MOTOR_PWM, GPIO_HIGH);
-    vTaskDelay(2 * angle / portTICK_PERIOD_MS);
+void rotateLeft(int angle) {
+    if (angle < 1000) {
+        setPWM(2);  // Set speed for rotation
+        gpioWrite(LEFT_SIDE_FORWARD, GPIO_LOW);
+        gpioWrite(LEFT_SIDE_BACKWARD, GPIO_HIGH);
+        gpioWrite(RIGHT_SIDE_FORWARD, GPIO_HIGH);
+        gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_LOW);
+        setDelay(angle * 5);  // Adjust the delay for rotation
+    } else {
+        gpioWrite(LEFT_SIDE_FORWARD, GPIO_LOW);
+        gpioWrite(LEFT_SIDE_BACKWARD, GPIO_HIGH);
+        gpioWrite(RIGHT_SIDE_FORWARD, GPIO_HIGH);
+        gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_LOW);
+    }
 }
 
-void rotateRight(int speed, int angle) {
-    gpioWrite(LEFT_SIDE_FORWARD, GPIO_HIGH);
-    gpioWrite(LEFT_SIDE_BACKWARD, GPIO_LOW);
-    gpioWrite(RIGHT_SIDE_FORWARD, GPIO_LOW);
-    gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_HIGH);
-    gpioWrite(MOTOR_PWM, GPIO_HIGH);
-    vTaskDelay(2 * angle / portTICK_PERIOD_MS);
+void rotateRight(int angle) {
+    if (angle < 1000) {
+        setPWM(2);  // Set speed for rotation
+        gpioWrite(LEFT_SIDE_FORWARD, GPIO_HIGH);
+        gpioWrite(LEFT_SIDE_BACKWARD, GPIO_LOW);
+        gpioWrite(RIGHT_SIDE_FORWARD, GPIO_LOW);
+        gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_HIGH);
+        setDelay(angle * 5);  // Adjust the delay for rotation
+    } else {
+        gpioWrite(LEFT_SIDE_FORWARD, GPIO_HIGH);
+        gpioWrite(LEFT_SIDE_BACKWARD, GPIO_LOW);
+        gpioWrite(RIGHT_SIDE_FORWARD, GPIO_LOW);
+        gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_HIGH);
+    }
 }
-
 void stopMotor() {
     gpioWrite(LEFT_SIDE_FORWARD, GPIO_LOW);
     gpioWrite(LEFT_SIDE_BACKWARD, GPIO_LOW);
     gpioWrite(RIGHT_SIDE_FORWARD, GPIO_LOW);
     gpioWrite(RIGHT_SIDE_BACKWARD, GPIO_LOW);
+}
+
+void setPWM(int speed) {
+    if (speed < 1 || speed > 3) {
+        return;
+    }
+    int x = 0;
+    if (speed == 3) {
+        x = 255;
+    } else if (speed == 2) {
+        x = 255 / 1.2;
+    } else if (speed == 1) {
+        x = 255 / 1.7;
+    }
+    setDuty(x);  // Set the duty cycle for PWM
 }

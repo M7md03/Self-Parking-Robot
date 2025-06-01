@@ -9,6 +9,8 @@
         "dport_reg.h": "c",
         "timer_group_struct.h": "c",
         "timer_group_reg.h": "c",
-        "esp_task_wdt.h": "c"
+        "esp_task_wdt.h": "c",
+        "cstdint": "c",
+        "hcsr04.h": "c"
     }
 }

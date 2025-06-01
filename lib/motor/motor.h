@@ -7,14 +7,18 @@
 #define LEFT_SIDE_BACKWARD 25
 #define MOTOR_PWM 27
 
+#include "gpioDriver.h"
+
 void initMotor();
 
-void moveForward(int speed);
-void moveBackward(int speed);
+void moveForward();
+void moveBackward();
 
-void rotateLeft(int speed, int angle);
-void rotateRight(int speed, int angle);
+void rotateLeft(int angle);
+void rotateRight(int angle);
 
 void stopMotor();
+
+void setPWM(int speed);
 
 #endif
